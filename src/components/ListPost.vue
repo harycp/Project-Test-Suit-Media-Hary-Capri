@@ -51,7 +51,6 @@ export default {
         .then((response) => {
           this.posts = response.data.data
           this.totalPosts = response.data.meta.total
-          console.log(this.posts[0].small_image[0].url)
         })
         .catch((error) => {
           console.error('Error fetching posts:', error)
@@ -59,27 +58,50 @@ export default {
     },
     goToPage(page) {
       this.pageNumber = page
+      localStorage.setItem('pageNumber', this.pageNumber) // Simpan pageNumber ke localStorage
       this.fetchPosts()
     },
     prevPage() {
       if (this.pageNumber > 1) {
         this.pageNumber--
+        localStorage.setItem('pageNumber', this.pageNumber) // Simpan pageNumber ke localStorage
         this.fetchPosts()
       }
     },
     nextPage() {
       if (this.pageNumber < this.totalPages) {
         this.pageNumber++
+        localStorage.setItem('pageNumber', this.pageNumber)
         this.fetchPosts()
       }
+    },
+    changePageSize() {
+      this.pageNumber = 1
+      localStorage.setItem('pageSize', this.pageSize)
+      localStorage.setItem('pageNumber', this.pageNumber)
+      this.fetchPosts()
     }
   },
   mounted() {
+    // Ambil nilai dari localStorage
     this.sortOrder = localStorage.getItem('sortOrder') || this.sortOrder
     this.pageSize = parseInt(localStorage.getItem('pageSize'), 10) || this.pageSize
     this.pageNumber = parseInt(localStorage.getItem('pageNumber'), 10) || this.pageNumber
 
     this.fetchPosts()
+  },
+  watch: {
+    pageSize(newPageSize) {
+      localStorage.setItem('pageSize', newPageSize)
+      this.changePageSize()
+    },
+    sortOrder(newSortOrder) {
+      localStorage.setItem('sortOrder', newSortOrder)
+      this.fetchPosts()
+    },
+    pageNumber(newPageNumber) {
+      localStorage.setItem('pageNumber', newPageNumber)
+    }
   }
 }
 </script>
@@ -116,7 +138,6 @@ export default {
     <div class="posts-list">
       <div class="post-card" v-for="post in posts" :key="post.id">
         <img v-lazy="post.small_image[0].url" alt="Thumbnail" />
-        <!-- API GAMBARNYA GABISA DI AKSES (ACCESS DENIED) -->
         <p>
           {{
             new Date(post.published_at).toLocaleString('id-ID', {
@@ -135,11 +156,9 @@ export default {
       <button @click="prevPage" :disabled="pageNumber === 1">&laquo;&laquo;</button>
       <button @click="prevPage" :disabled="pageNumber === 1">&lsaquo;</button>
 
-      <!-- Show first page and ellipsis if current range is not at the start -->
       <span v-if="startPage > 1" @click="goToPage(1)" class="page-number">1</span>
       <span v-if="startPage > 2">...</span>
 
-      <!-- Display the range of pages -->
       <span
         v-for="page in visiblePages"
         :key="page"
@@ -150,11 +169,10 @@ export default {
         {{ page }}
       </span>
 
-      <!-- Show last page and ellipsis if current range is not at the end -->
       <span v-if="endPage < totalPages - 1">...</span>
-      <span v-if="endPage < totalPages" @click="goToPage(totalPages)" class="page-number">{{
-        totalPages
-      }}</span>
+      <span v-if="endPage < totalPages" @click="goToPage(totalPages)" class="page-number">
+        {{ totalPages }}
+      </span>
 
       <button @click="nextPage" :disabled="pageNumber === totalPages">&rsaquo;</button>
       <button @click="nextPage" :disabled="pageNumber === totalPages">&raquo;&raquo;</button>
