@@ -51,6 +51,7 @@ export default {
         .then((response) => {
           this.posts = response.data.data
           this.totalPosts = response.data.meta.total
+          console.log(this.posts[0].small_image[0].url)
         })
         .catch((error) => {
           console.error('Error fetching posts:', error)
@@ -114,14 +115,8 @@ export default {
     <!-- Posts List -->
     <div class="posts-list">
       <div class="post-card" v-for="post in posts" :key="post.id">
-        <img
-          v-lazy="
-            post.small_image && post.small_image.length > 0
-              ? post.small_image[0].url
-              : '/path/to/placeholder.jpg'
-          "
-          alt="Thumbnail"
-        />
+        <img v-lazy="post.small_image[0].url" alt="Thumbnail" />
+        <!-- API GAMBARNYA GABISA DI AKSES (ACCESS DENIED) -->
         <p>
           {{
             new Date(post.published_at).toLocaleString('id-ID', {
