@@ -39,11 +39,8 @@ export default {
   },
   methods: {
     fetchPosts() {
-      const baseUrl =
-        process.env.NODE_ENV === 'production' ? 'https://suitmedia-backend.suitdev.com' : '/api'
-
       axios
-        .get(`${baseUrl}/ideas`, {
+        .get(`${import.meta.env.VITE_API_BASE_URL}/ideas`, {
           params: {
             'page[number]': this.pageNumber,
             'page[size]': this.pageSize,
